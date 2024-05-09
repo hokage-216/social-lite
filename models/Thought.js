@@ -6,7 +6,8 @@ const thoughtSchema = new mongoose.Schema(
         thoughtText: {
             type: String,
             required: true,
-            trim: true
+            minLength: 1,
+            maxLength: 280,
         },
         createdAt: {
             type: Date,
