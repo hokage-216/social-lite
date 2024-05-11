@@ -27,21 +27,42 @@ connection.once('open', async () => {
     const userData = await User.insertMany(users);
     console.log('Users inserted:', userData);
 
+     // Create thoughts array
+     const thoughts = [
+        {
+            thoughtText: "I love this new app!",
+            createdAt: Date.now(),
+            username: userData.find(u => u.username === 'user1')._id,
+            reactions: []
+        },
+        {
+            thoughtText: "I love the smell of pie!",
+            createdAt: Date.now(),
+            username: userData.find(u => u.username === 'user2')._id,
+            reactions: []
+        },
+        
+    ];
+
+    // Add thoughts to the collection and await the results
+    const thoughtData = await Thought.insertMany(thoughts);
+    console.log('Thoughts inserted:', thoughtData);
+
     // Create initial reactions
     const reactions_1 = [
         {
             reactionBody: "That's fantastic!",
-            username: 'user2',
+            username: userData.find(u => u.username === 'user2')._id,
             createdAt: new Date()
         },
         {
             reactionBody: "Awesome post!",
-            username: 'user3',
+            username: userData.find(u => u.username === 'user3')._id,
             createdAt: new Date()
         },
         {
             reactionBody: "I'm with you on that one!",
-            username: 'user4',
+            username: userData.find(u => u.username === 'user4')._id,
             createdAt: new Date()
         }
     ];
@@ -49,59 +70,24 @@ connection.once('open', async () => {
     const reactions_2 = [
         {
             reactionBody: "That's fantastic!",
-            username: 'user2',
+            username: userData.find(u => u.username === 'user3')._id,
             createdAt: new Date()
         },
         {
             reactionBody: "Awesome post!",
-            username: 'user3',
+            username: userData.find(u => u.username === 'user4')._id,
             createdAt: new Date()
         },
         {
             reactionBody: "I'm with you on that one!",
-            username: 'user4',
+            username: userData.find(u => u.username === 'user5')._id,
             createdAt: new Date()
         }
     ];
 
-     // Create thoughts array
-     const thoughts = [
-        {
-            thoughtText: "I love this new app!",
-            createdAt: Date.now(),
-            username: 'user1',
-            reactions: [reactions_1]
-        },
-        {
-            thoughtText: "I love the smell of pie!",
-            createdAt: Date.now(),
-            username: 'user1',
-            reactions: [reactions_2]
-        },
-        
-    ];
-
-    thoughts.forEach(thought => {
-        const user = userData.find(u => u.username === thought.username);
-        if (!user) {
-            console.error(`No user found for thought by username: ${thought.username}`);
-            return; // Skip this thought if no user found
-        }
-        thought.username = user._id; // Convert username to user _id
-    
-        thought.reactions.forEach(reaction => {
-            const userForReaction = userData.find(u => u.username === reaction.username);
-            if (!userForReaction) {
-                console.error(`No user found for reaction by username: ${reaction.username}`);
-                return; // Skip this reaction if no user found
-            }
-            reaction.username = userForReaction._id; // Convert username to user _id
-        });
-    });
-
-    // Add thoughts to the collection and await the results
-    const thoughtData = await Thought.insertMany(thoughts);
-    console.log('Thoughts inserted:', thoughtData);
+    // Update thoughts with reactions
+    await Thought.findByIdAndUpdate(thoughtData[0]._id, { $push: { reactions: { $each: reactions_1 } } });
+    await Thought.findByIdAndUpdate(thoughtData[1]._id, { $push: { reactions: { $each: reactions_2 } } });
 
     console.info('Seeding complete! 🌱');
     process.exit(0);
