@@ -84,6 +84,19 @@ connection.once('open', async () => {
     await Thought.findByIdAndUpdate(thoughtData[0]._id, { $push: { reactions: { $each: reactions_1 } } });
     await Thought.findByIdAndUpdate(thoughtData[1]._id, { $push: { reactions: { $each: reactions_2 } } });
 
+    // Update users with thought data
+    for (const user of userData) {
+        // Find thoughts that this user created
+        const userThoughts = thoughtData.filter(thought => thought.username.toString() === user._id.toString());
+        
+        // Update the user document with their respective thoughts
+        if (userThoughts.length > 0) {
+            await User.findByIdAndUpdate(user._id, {
+                $push: { thoughts: { $each: userThoughts.map(thought => thought._id) } }
+            });
+        }
+    } 
+
     console.info('Seeding complete! 🌱');
     process.exit(0);
 });
