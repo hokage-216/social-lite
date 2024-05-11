@@ -4,7 +4,8 @@ const { Thought, User } = require('../../models');
 // GET all users
 router.get('/allUsers ', async (req, res) => {
     try {
-        const users = await User.find(); 
+        const users = await User.find({}); 
+        res.status(200).json(users);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: `Unable to obtain all users. Error: ${error}`});
