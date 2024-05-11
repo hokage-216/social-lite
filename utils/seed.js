@@ -15,12 +15,7 @@ connection.once('open', async () => {
         { username: 'user2', email: 'user2@example.com' },
         { username: 'user3', email: 'user3@example.com' },
         { username: 'user4', email: 'user4@example.com' },
-        { username: 'user5', email: 'user5@example.com' },
-        { username: 'user6', email: 'user6@example.com' },
-        { username: 'user7', email: 'user7@example.com' },
-        { username: 'user8', email: 'user8@example.com' },
-        { username: 'user9', email: 'user9@example.com' },
-        { username: 'user10', email: 'user10@example.com' }
+        { username: 'user5', email: 'user5@example.com' }
     ];
 
     // Add users to the collection and await the results
