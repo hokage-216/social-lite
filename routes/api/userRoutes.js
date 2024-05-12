@@ -13,9 +13,10 @@ router.get('/all-users', async (req, res) => {
 });
 
 // GET a single user by its _id and populated thought and friend data
-router.get('/user/:id', async (req, res) => {
+router.get('/one-user/:id', async (req, res) => {
     try {
-        //get a  single user by id
+        const user = await User.find({username: req.params.id}).populate('thoughts').populate('friends');
+        res.status(200).json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: `Unable to obtain user info. Error: ${error}`});
@@ -23,9 +24,11 @@ router.get('/user/:id', async (req, res) => {
 });
 
 // POST a new user
-router.post('/user/:id', async (req, res) => {
+router.post('/create', async (req, res) => {
     try {
-        // Add new user
+        console.log(req.body);
+        const newUser = await User.create({username: req.body.username, email: req.body.email, thoughts: req.body.thoughts, friends: req.body.friends});
+        res.status(200).json(newUser);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: `Unable add a new user. Error: ${error}`});
@@ -33,9 +36,13 @@ router.post('/user/:id', async (req, res) => {
 });
 
 // PUT (update) a user by its _id
-router.put('/user/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
     try {
         // update user by id
+        console.log(req.body);
+        const query = {username: req.params.id};
+        const updateUser = await User.findOneAndUpdate(query, { $set: {username: req.body.username, email: req.body.email}}, { new: true, runValidators: true });
+        res.status(200).json(updateUser);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: `Unable to update user. Error: ${error}`});
@@ -43,9 +50,10 @@ router.put('/user/:id', async (req, res) => {
 });
 
 // DELETE a user by its _id
-router.delete('/user/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
     try {
-        // delete user by id
+        await User.deleteOne({username: req.params.id});
+        res.status(200).json({message: `The following user was deleted: ${req.params.id}`});
     } catch (error) {
         console.error(error);
         res.status(500).json({message: `Unable to delete user. Error: ${error}`});
@@ -53,22 +61,50 @@ router.delete('/user/:id', async (req, res) => {
 });
 
 // POST to add a new friend to a users friend list
-router.post('/addFriend/:id', async (req, res) => {
+router.post('/add-friend', async (req, res) => {
+    const userId = req.body.userId;
+    const friendId = req.body.friendId;
+
     try {
-        // Add friend to specific friend list
+        // Find user and add friend ID to the friends array if not already included
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { friends: friendId } },
+            { new: true, runValidators: true }
+        );
+
+        if (updatedUser) {
+            res.status(200).json(updatedUser);
+        } else {
+            res.status(404).json({ message: "User not found." });
+        }
     } catch (error) {
         console.error(error);
-        res.status(500).json({message: `Unable add friend to friends list. Error: ${error}`});
+        res.status(500).json({ message: `Unable to add friend to friends list. Error: ${error}` });
     }
 });
 
 // DELETE to remove a friend from a user's friend list
-router.delete('/removeFriend/:id', async (req, res) => {
+router.delete('/remove-friend', async (req, res) => {
+    const userId = req.body.userId;
+    const friendId = req.body.friendId;
+
     try {
-        // delete user from friends list
+        // Find user and remove friend ID from the friends array
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $pull: { friends: friendId } },
+            { new: true, runValidators: true }
+        );
+
+        if (updatedUser) {
+            res.status(200).json(updatedUser);
+        } else {
+            res.status(404).json({ message: "User not found." });
+        }
     } catch (error) {
         console.error(error);
-        res.status(500).json({message: `Unable to remove friend from friends list. Error: ${error}`});
+        res.status(500).json({ message: `Unable to remove friend from friends list. Error: ${error}` });
     }
 });
 
