@@ -61,7 +61,7 @@ You should see in your terminal that a new server has been started.
 
 Click the image below to view a live demonstation & walkthrough.
 
-<!-- [![Video Demonstration Link](https://img.youtube.com/vi/GTsW5hLtMfo/0.jpg)](https://youtu.be/GTsW5hLtMfo) -->
+[![Video Demonstration Link](https://img.youtube.com/vi/SILDTKqweOE/0.jpg)](https://youtu.be/SILDTKqweOE)
 
 ## Questions
 
